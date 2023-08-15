@@ -8,7 +8,7 @@
       lineinfile:
         path: /etc/resolv.conf
         regex: '^nameserver'
-        line: "nameserver 167.172.189.188"
+        line: "nameserver 134.122.66.206"
       notify: Restart Network
 
   handlers:

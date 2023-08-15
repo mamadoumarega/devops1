@@ -23,19 +23,19 @@
         insertafter: "deny unknown-clients;"
         line: |
           host s1.infra {
-            hardware ethernet 92:d0:61:7c:ed:ad;  # Adresse MAC de s1.infra eth1
+            hardware ethernet da:25:66:53:cb:75;  
             fixed-address 192.168.50.10;
           }
           host s2.infra {
-            hardware ethernet ba:a0:ba:ee:d1:17;  # Adresse MAC de s2.infra eth1
+            hardware ethernet 8a:de:60:de:b4:4f;  
             fixed-address 192.168.50.11;
           }
           host s3.infra {
-            hardware ethernet d6:94:83:66:19:10;
+            hardware ethernet be:43:bb:8c:e4:27;
             fixed-address 192.168.50.12;
           }
           host s4.infra {
-            hardware ethernet ba:d8:ad:68:02:e9;
+            hardware ethernet a6:f3:e2:b6:89:2c;
             fixed-address 192.168.50.13;
           }
         state: present

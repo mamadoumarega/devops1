@@ -30,11 +30,11 @@
 
     - name: Add hosts to zone infra.lan
       ansible.builtin.shell: |
-        echo 's0.infra      IN      A       167.172.189.188' >> /etc/bind/infra.lan.zone
-        echo 's1.infra      IN      A       134.122.89.239' >> /etc/bind/infra.lan.zone
-        echo 's2.infra      IN      A       161.35.215.243' >> /etc/bind/infra.lan.zone
-        echo 's3.infra      IN      A       134.122.85.122' >> /etc/bind/infra.lan.zone
-        echo 's4.infra      IN      A       134.122.89.239' >> /etc/bind/infra.lan.zone
+        echo 's0.infra      IN      A       134.122.66.206' >> /etc/bind/infra.lan.zone
+        echo 's1.infra      IN      A       134.122.66.108' >> /etc/bind/infra.lan.zone
+        echo 's2.infra      IN      A       206.189.52.209' >> /etc/bind/infra.lan.zone
+        echo 's3.infra      IN      A       138.68.93.114' >> /etc/bind/infra.lan.zone
+        echo 's4.infra      IN      A       167.71.51.134' >> /etc/bind/infra.lan.zone
 
     - name: Start bind9
       service:

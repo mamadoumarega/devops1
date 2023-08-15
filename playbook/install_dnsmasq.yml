@@ -1,6 +1,6 @@
 ---
 - name: Install DNSmasq
-  hosts: server
+  hosts: s0.infra
   become: true 
 
   tasks:
