@@ -1,0 +1,19 @@
+---
+- name: Configure DNS Server on all machines
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Replace /etc/resolv.conf with custom configuration
+      lineinfile:
+        path: /etc/resolv.conf
+        regex: '^nameserver'
+        line: "nameserver 167.172.189.188"
+      notify: Restart Network
+
+  handlers:
+    - name: Restart Network
+      systemd:
+        name: systemd-networkd
+        state: restarted
+

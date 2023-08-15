@@ -1,0 +1,44 @@
+---
+- hosts: s0.infra
+  become: true
+  tasks:
+    - name: Install bind9
+      apt:
+        name: bind9
+        state: present
+
+    - name: Configure bind9
+      lineinfile:
+        path: /etc/bind/named.conf.options
+        line: |
+          forwarders {
+            1.1.1.1;
+          };
+
+    - name: Create zone infra.lan file
+      ansible.builtin.shell: |
+        echo '$TTL 1D' > /etc/bind/infra.lan.zone
+        echo '@       IN      SOA     ns.infra.lan. admin.infra.lan. (' >> /etc/bind/infra.lan.zone
+        echo '                   2023081301         ; Serial' >> /etc/bind/infra.lan.zone
+        echo '                         1D         ; Refresh' >> /etc/bind/infra.lan.zone
+        echo '                         1H         ; Retry' >> /etc/bind/infra.lan.zone
+        echo '                         1W         ; Expire' >> /etc/bind/infra.lan.zone
+        echo '                         3H )       ; Negative Cache TTL' >> /etc/bind/infra.lan.zone
+        echo ';' >> /etc/bind/infra.lan.zone
+        echo '@       IN      NS      ns.infra.lan.' >> /etc/bind/infra.lan.zone
+        echo 'ns      IN      A       192.168.50.10' >> /etc/bind/infra.lan.zone
+
+    - name: Add hosts to zone infra.lan
+      ansible.builtin.shell: |
+        echo 's0.infra      IN      A       167.172.189.188' >> /etc/bind/infra.lan.zone
+        echo 's1.infra      IN      A       134.122.89.239' >> /etc/bind/infra.lan.zone
+        echo 's2.infra      IN      A       161.35.215.243' >> /etc/bind/infra.lan.zone
+        echo 's3.infra      IN      A       134.122.85.122' >> /etc/bind/infra.lan.zone
+        echo 's4.infra      IN      A       134.122.89.239' >> /etc/bind/infra.lan.zone
+
+    - name: Start bind9
+      service:
+        name: bind9
+        state: started
+        enabled: yes
+

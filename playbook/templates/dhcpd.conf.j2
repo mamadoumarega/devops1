@@ -1,0 +1,34 @@
+# Configuration for DHCP Server
+
+# Global settings
+ddns-update-style none;
+default-lease-time 600;
+max-lease-time 7200;
+
+# Subnet declaration for eth1 interface
+subnet 192.168.50.0 netmask 255.255.255.0 {
+    option routers 0.0.0.0;
+    option domain-name-servers 192.168.50.1;
+    range 192.168.50.10 192.168.50.254;
+
+    host s1.infra {
+        hardware ethernet 6a:45:12:83:f3:23;
+        fixed-address 192.168.50.3;
+    }
+
+    host s2.infra {
+        hardware ethernet 42:b8:d0:0d:0d:13;
+        fixed-address 192.168.50.4;
+    }
+
+    host s3.infra {
+        hardware ethernet 5e:bd:ba:d3:fa:6d;
+        fixed-address 192.168.50.5;
+    }
+
+    host s4.infra {
+        hardware ethernet a6:8e:1e:0a:f4:4e;
+        fixed-address 192.168.50.6;
+    }
+}
+

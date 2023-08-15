@@ -1,0 +1,11 @@
+---
+- name: Install DNSmasq
+  hosts: server
+  become: true 
+
+  tasks:
+    - name: Install DNSmasq package
+      apt:
+        name: dnsmasq
+        state: present
+

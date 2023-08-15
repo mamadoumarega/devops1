@@ -1,0 +1,48 @@
+- hosts: s0.infra
+  become: true
+  tasks:
+    - name: Install DHCP server
+      apt:
+        name: isc-dhcp-server
+        state: present
+
+    - name: Configure DHCP server
+      lineinfile:
+        path: /etc/dhcp/dhcpd.conf
+        insertafter: "subnet 192.168.50.0 netmask 255.255.255.0 {"
+        line: |
+          pool {
+            range 192.168.50.10 192.168.50.254;
+            deny unknown-clients;
+          }
+        state: present
+
+    - name: Configure hosts
+      lineinfile:
+        path: /etc/dhcp/dhcpd.conf
+        insertafter: "deny unknown-clients;"
+        line: |
+          host s1.infra {
+            hardware ethernet 92:d0:61:7c:ed:ad;  # Adresse MAC de s1.infra eth1
+            fixed-address 192.168.50.10;
+          }
+          host s2.infra {
+            hardware ethernet ba:a0:ba:ee:d1:17;  # Adresse MAC de s2.infra eth1
+            fixed-address 192.168.50.11;
+          }
+          host s3.infra {
+            hardware ethernet d6:94:83:66:19:10;
+            fixed-address 192.168.50.12;
+          }
+          host s4.infra {
+            hardware ethernet ba:d8:ad:68:02:e9;
+            fixed-address 192.168.50.13;
+          }
+        state: present
+
+    - name: Start DHCP service
+      service:
+        name: isc-dhcp-server
+        state: started
+        enabled: yes
+

@@ -1,0 +1,12 @@
+---
+- name: Disable DHCP Service
+  hosts: all
+  become: true 
+
+  tasks:
+    - name: Stop DHCP service
+      systemd:
+        name: isc-dhcp-server
+        state: stopped
+        enabled: no
+
