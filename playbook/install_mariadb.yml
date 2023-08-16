@@ -1,6 +1,9 @@
+---
 - hosts: s3.infra
   become: true
   vars:
+    mariadb_host: "138.68.93.114"
+    mariadb_root_username: "projet"
     mariadb_root_password: "projet"
   tasks:
     - name: Install python3-pymysql
@@ -20,31 +23,24 @@
         state: started
         enabled: yes
 
-    - name: Configure MariaDB root password
-      lineinfile:
-        path: /etc/mysql/debian.cnf
-        regexp: "^\\[mysqld\\]$"
-        line: |
-          [mysqld]
-          root_password={{ mariadb_root_password }}
+#    - name: Configure MariaDB root password
+ #     lineinfile:
+  #      path: /etc/mysql/debian.cnf
+   #     regexp: "^\\[mysqld\\]$"
+    #    line: |
+     #     [mysqld]
+      #    root_password={{ mariadb_root_password }}
 
     - name: Create a test database
       mysql_db:
         name: test
-        state: present
-
-    - name: Grant all privileges on the test database to the root user
-      mysql_user:
-        name: root
-        host: '%'
-        password: "{{ mariadb_root_password }}"
-        priv: "*.*:ALL"
-        state: present
-        login_user: root
+        login_host: "{{ mariadb_host }}" 
+        login_user: "{{ mariadb_root_username }}"
         login_password: "{{ mariadb_root_password }}"
+        state: present
 
-    - name: Restart MariaDB
-      service:
-        name: mariadb
-        state: restarted
+#    - name: Restart MariaDB
+  #    service:
+    #    name: mariadb
+      #  state: restarted
 
