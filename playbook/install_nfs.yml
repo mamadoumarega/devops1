@@ -1,0 +1,36 @@
+---
+- hosts: s4.infra
+  become: yes
+  tasks:
+    - name: Install NFS server
+      apt:
+        name: nfs-kernel-server
+        state: present
+
+    - name: Configure NFS server
+      file:
+        path: /etc/exports
+        state: present
+        owner: root
+        group: root
+        mode: 644
+        content: |
+          /home/data *(rw,no_root_squash)
+
+    - name: Start NFS server
+      service:
+        name: nfs-kernel-server
+        state: started
+        enabled: yes
+
+- hosts: s1.infra, s2.infra
+  become: yes
+  tasks:
+    - name: Mount NFS share
+      mount:
+        src: s4.infra:/home/data
+        dest: /mnt/nfs
+        state: present
+        owner: root
+        group: root
+        mode: 0755
