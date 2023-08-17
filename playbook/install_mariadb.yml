@@ -3,8 +3,9 @@
   become: true
   vars:
     mariadb_host: "138.68.93.114"
-    mariadb_root_username: "projet"
-    mariadb_root_password: "projet"
+    mariadb_username: "wp_user"
+    mariadb_password: "wp_projet"
+    mariadb_db: "wordpress"
   tasks:
     - name: Install python3-pymysql
       apt:
@@ -23,20 +24,18 @@
         state: started
         enabled: yes
 
-#    - name: Configure MariaDB root password
- #     lineinfile:
-  #      path: /etc/mysql/debian.cnf
-   #     regexp: "^\\[mysqld\\]$"
-    #    line: |
-     #     [mysqld]
-      #    root_password={{ mariadb_root_password }}
+    - name: Create MariaDB user
+      shell: >
+        mysql -e "CREATE USER '{{mariadb_username}}'@'%' IDENTIFIED BY '{{mariadb_password}}';" && mysql -e "GRANT ALL PRIVILEGES ON *.* TO '{{ mariadb_username }}'@'%';"
+      register: create_user_result
+      ignore_errors: yes
 
     - name: Create a test database
       mysql_db:
-        name: test
+        name: "{{ mariadb_db }}"
         login_host: "{{ mariadb_host }}" 
-        login_user: "{{ mariadb_root_username }}"
-        login_password: "{{ mariadb_root_password }}"
+        login_user: "{{ mariadb_username }}"
+        login_password: "{{ mariadb_password }}"
         state: present
 
 #    - name: Restart MariaDB
