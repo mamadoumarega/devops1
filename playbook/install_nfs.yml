@@ -1,36 +1,30 @@
 ---
-- hosts: s4.infra
-  become: yes
+- name: Install NFS Server on s4.infra
+  hosts: s4.infra
+  become: true
+
   tasks:
-    - name: Install NFS server
+    - name: Install NFS Server package
       apt:
         name: nfs-kernel-server
         state: present
 
-    - name: Configure NFS server
+    - name: Create shared directory
       file:
-        path: /etc/exports
-        state: present
-        owner: root
-        group: root
-        mode: 644
-        content: |
-          /home/data *(rw,no_root_squash)
+        path: /home/data
+        state: directory
+        mode: "0755"
 
-    - name: Start NFS server
+    - name: Configure NFS exports
+      lineinfile:
+        path: /etc/exports
+        line: "/home/data *(rw,sync,no_root_squash,no_subtree_check)"
+        state: present
+      notify:
+        - Restart NFS Server
+
+  handlers:
+    - name: Restart NFS Server
       service:
         name: nfs-kernel-server
-        state: started
-        enabled: yes
-
-- hosts: s1.infra, s2.infra
-  become: yes
-  tasks:
-    - name: Mount NFS share
-      mount:
-        src: s4.infra:/home/data
-        dest: /mnt/nfs
-        state: present
-        owner: root
-        group: root
-        mode: 0755
+        state: restarted
