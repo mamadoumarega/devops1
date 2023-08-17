@@ -1,0 +1,123 @@
+---
+- name: Install and configure WordPress on web servers
+  hosts: s1.infra,s2.infra
+  become: yes
+  vars:
+    wordpress_domains:
+      - devops.com
+      - devsec.com
+      - devsecops.com
+    default_domain: default.com
+    wordpress_db_name: "wordpress"
+    wordpress_db_user: "wp_user"
+    wordpress_db_password: "wp_projet"
+    db_host: 138.68.93.114
+
+  tasks:
+    - name: Install Apache web server
+      package:
+        name: apache2
+        state: present
+
+    - name: Enable Apache mod_rewrite
+      apache2_module:
+        name: rewrite
+        state: present
+
+    - name: Install PHP and required modules
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - libapache2-mod-php
+        - php
+        - php-mysql
+        - php-gd
+        - php-curl
+
+    - name: Restart Apache service
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Download WordPress archive
+      get_url:
+        url: "https://wordpress.org/latest.tar.gz"
+        dest: /tmp/wordpress.tar.gz
+
+    - name: Create sites directories
+      file:
+        path: "/var/www/{{ item.domain }}"
+        state: directory
+      with_items:
+        - { domain: "{{ default_domain }}" }
+        - { domain: "{{ wordpress_domains[0] }}" }
+        - { domain: "{{ wordpress_domains[1] }}" }
+        - { domain: "{{ wordpress_domains[2] }}" }
+
+    - name: Extract WordPress archive
+      unarchive:
+        src: /tmp/wordpress.tar.gz
+        dest: "/var/www/{{ item.domain }}/"
+        remote_src: yes
+      with_items:
+        - { domain: "{{ default_domain }}" }
+        - { domain: "{{ wordpress_domains[0] }}" }
+        - { domain: "{{ wordpress_domains[1] }}" }
+        - { domain: "{{ wordpress_domains[2] }}" }
+
+
+#    - name: Configure WordPress
+  #    template:
+    #    src: wp-config.php.j2
+      #  dest: /var/www/wordpress/wp-config.php
+       # owner: www-data
+       # group: www-data
+       # mode: 0640
+     # notify:
+     #   - Restart Apache
+
+    - name: Create virtual host configurations
+      template:
+        src: 000-default.conf.j2
+        dest: "/etc/apache2/sites-available/{{ item.domain }}.conf"
+      with_items:
+        - { domain: "{{ default_domain }}" }
+        - { domain: "{{ wordpress_domains[0] }}" }
+        - { domain: "{{ wordpress_domains[1] }}" }
+        - { domain: "{{ wordpress_domains[2] }}" }
+
+    - name: Configure virtual hosts
+      lineinfile:
+        path: "/etc/apache2/sites-available/{{ item.domain }}.conf"
+        regexp: "^<VirtualHost .*:80>"
+        line: "<VirtualHost *:80>"
+      with_items:
+        - { domain: "{{ default_domain }}" }
+        - { domain: "{{ wordpress_domains[0] }}" }
+        - { domain: "{{ wordpress_domains[1] }}" }
+        - { domain: "{{ wordpress_domains[2] }}" }
+      notify:
+        - Restart Apache
+
+    - name: Enable virtual hosts
+      command: a2ensite {{ item.domain }}
+      with_items:
+        - { domain: "{{ default_domain }}" }
+        - { domain: "{{ wordpress_domains[0] }}" }
+        - { domain: "{{ wordpress_domains[1] }}" }
+        - { domain: "{{ wordpress_domains[2] }}" }
+      notify:
+        - Restart Apache
+
+    - name: Disable default virtual host
+      command: a2dissite 000-default
+      ignore_errors: yes
+      notify:
+        - Restart Apache
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted

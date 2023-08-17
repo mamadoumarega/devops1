@@ -1,0 +1,32 @@
+<VirtualHost *:80>
+    ServerName {{ item.domain }}
+    DocumentRoot /var/www/{{ item.domain }}/wordpress/public_html
+
+ 
+
+    <Directory /var/www/{{ item.domain }}/wordpress/public_html>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+</Directory>
+
+ 
+
+    ErrorLog ${APACHE_LOG_DIR}/{{ item.domain }}_error.log
+    CustomLog ${APACHE_LOG_DIR}/{{ item.domain }}_access.log combined
+
+ 
+
+    # WordPress configuration
+<Directory /var/www/{{ item.domain }}/wordpress/public_html>
+        RewriteEngine On
+        RewriteBase /
+        RewriteRule ^index\.php$ - [L]
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule . /index.php [L]
+</Directory>
+
+ 
+
+</VirtualHost>
