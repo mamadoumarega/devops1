@@ -1,30 +1,33 @@
 ---
-- name: Install NFS Server on s4.infra
-  hosts: s4.infra
-  become: true
-
+- hosts: s4.infra
+  become: yes
   tasks:
-    - name: Install NFS Server package
-      apt:
+    - name: install nfs-kernel-server
+      apt: 
         name: nfs-kernel-server
         state: present
-
-    - name: Create shared directory
+      
+    - name: Create a mountable directory if it does not exist
       file:
-        path: /home/data
+        path: /wordpress
         state: directory
-        mode: "0755"
-
-    - name: Configure NFS exports
-      lineinfile:
-        path: /etc/exports
-        line: "/home/data *(rw,sync,no_root_squash,no_subtree_check)"
-        state: present
-      notify:
-        - Restart NFS Server
-
-  handlers:
-    - name: Restart NFS Server
+        mode: '0775'
+      
+    - name: enable rpcbind nfslock nfs
       service:
         name: nfs-kernel-server
-        state: restarted
+        enabled: yes
+      
+    - name: Copy exports file.
+      template:
+        src: exports.j2
+        dest: /etc/exports
+        owner: root
+        group: root
+        mode: 0644
+      
+    - name: NFS apply change configrue
+      shell: exportfs -a && systemctl restart nfs-kernel-server
+   
+    - name: Create a mountable directory if it does not exist
+      shell: mkdir /wordpress/devops /wordpress/devsec /wordpress/devsecops

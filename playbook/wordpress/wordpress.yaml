@@ -7,11 +7,8 @@
       - devops.com
       - devsec.com
       - devsecops.com
-    default_domain: default.com
-    wordpress_db_name: "wordpress"
-    wordpress_db_user: "wp_user"
-    wordpress_db_password: "wp_projet"
-    db_host: 138.68.93.114
+    mynfs: 167.71.51.134:/wordpress
+    myopts: "rw,sync"
 
   tasks:
     - name: Install Apache web server
@@ -50,10 +47,33 @@
         path: "/var/www/{{ item.domain }}"
         state: directory
       with_items:
-        - { domain: "{{ default_domain }}" }
         - { domain: "{{ wordpress_domains[0] }}" }
         - { domain: "{{ wordpress_domains[1] }}" }
         - { domain: "{{ wordpress_domains[2] }}" }
+
+    - name : mount /mnt/devops
+      ansible.posix.mount:
+        src : "{{ mynfs }}/devops"
+        path : "/var/www/devops.com/"
+        fstype : nfs
+        opts : "{{ myopts }}"
+        state : mounted
+
+    - name : mount /mnt/devsec
+      ansible.posix.mount:
+        src : "{{ mynfs }}/devsec"
+        path : "/var/www/devsec.com/"
+        fstype : nfs
+        opts : "{{ myopts }}"
+        state : mounted
+
+    - name : mount /mnt/devsecops
+      ansible.posix.mount:
+        src : "{{ mynfs }}/devsecops"
+        path : "/var/www/devsecops.com/"
+        fstype : nfs
+        opts : "{{ myopts }}"
+        state : mounted
 
     - name: Extract WordPress archive
       unarchive:
@@ -61,28 +81,16 @@
         dest: "/var/www/{{ item.domain }}/"
         remote_src: yes
       with_items:
-        - { domain: "{{ default_domain }}" }
         - { domain: "{{ wordpress_domains[0] }}" }
         - { domain: "{{ wordpress_domains[1] }}" }
         - { domain: "{{ wordpress_domains[2] }}" }
 
-
-#    - name: Configure WordPress
-  #    template:
-    #    src: wp-config.php.j2
-      #  dest: /var/www/wordpress/wp-config.php
-       # owner: www-data
-       # group: www-data
-       # mode: 0640
-     # notify:
-     #   - Restart Apache
-
+    
     - name: Create virtual host configurations
       template:
         src: 000-default.conf.j2
         dest: "/etc/apache2/sites-available/{{ item.domain }}.conf"
       with_items:
-        - { domain: "{{ default_domain }}" }
         - { domain: "{{ wordpress_domains[0] }}" }
         - { domain: "{{ wordpress_domains[1] }}" }
         - { domain: "{{ wordpress_domains[2] }}" }
@@ -93,7 +101,6 @@
         regexp: "^<VirtualHost .*:80>"
         line: "<VirtualHost *:80>"
       with_items:
-        - { domain: "{{ default_domain }}" }
         - { domain: "{{ wordpress_domains[0] }}" }
         - { domain: "{{ wordpress_domains[1] }}" }
         - { domain: "{{ wordpress_domains[2] }}" }
@@ -103,7 +110,6 @@
     - name: Enable virtual hosts
       command: a2ensite {{ item.domain }}
       with_items:
-        - { domain: "{{ default_domain }}" }
         - { domain: "{{ wordpress_domains[0] }}" }
         - { domain: "{{ wordpress_domains[1] }}" }
         - { domain: "{{ wordpress_domains[2] }}" }
