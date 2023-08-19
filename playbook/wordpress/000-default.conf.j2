@@ -1,14 +1,14 @@
 <VirtualHost *:80>
     ServerName {{ item.domain }}
-    DocumentRoot /var/www/{{ item.domain }}/wordpress/public_html
+    DocumentRoot /var/www/{{ item.domain }}/wordpress
 
  
 
-    <Directory /var/www/{{ item.domain }}/wordpress/public_html>
+    <Directory /var/www/{{ item.domain }}/wordpress>
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
-</Directory>
+    </Directory>
 
  
 
@@ -18,14 +18,14 @@
  
 
     # WordPress configuration
-<Directory /var/www/{{ item.domain }}/wordpress/public_html>
+   <Directory /var/www/{{ item.domain }}/wordpress>
         RewriteEngine On
         RewriteBase /
         RewriteRule ^index\.php$ - [L]
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteCond %{REQUEST_FILENAME} !-d
         RewriteRule . /index.php [L]
-</Directory>
+   </Directory>
 
  
 

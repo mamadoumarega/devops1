@@ -1,11 +1,8 @@
 ---
 - hosts: s3.infra
   become: true
-  vars:
-    mariadb_host: "138.68.93.114"
-    mariadb_username: "wp_user"
-    mariadb_password: "wp_projet"
-    mariadb_db: "wordpress"
+  vars_files:
+    - secret.yml
   tasks:
     - name: Install python3-pymysql
       apt:
@@ -26,20 +23,30 @@
 
     - name: Create MariaDB user
       shell: >
-        mysql -e "CREATE USER '{{mariadb_username}}'@'%' IDENTIFIED BY '{{mariadb_password}}';" && mysql -e "GRANT ALL PRIVILEGES ON *.* TO '{{ mariadb_username }}'@'%';"
+        mysql -e "CREATE USER '{{wordpress_db_user}}'@'%' IDENTIFIED BY '{{wordpress_db_password}}';" && mysql -e "GRANT ALL PRIVILEGES ON *.* TO '{{ wordpress_db_user }}'@'%';"
       register: create_user_result
       ignore_errors: yes
 
-    - name: Create a test database
+    - name: Create devops db 
       mysql_db:
-        name: "{{ mariadb_db }}"
-        login_host: "{{ mariadb_host }}" 
-        login_user: "{{ mariadb_username }}"
-        login_password: "{{ mariadb_password }}"
+        name: "{{ devops_db }}"
+        login_host: "{{ db_host }}" 
+        login_user: "{{ wordpress_db_user }}"
+        login_password: "{{ wordpress_db_password }}"
         state: present
 
-#    - name: Restart MariaDB
-  #    service:
-    #    name: mariadb
-      #  state: restarted
+    - name: Create devsec db
+      mysql_db:
+        name: "{{ devsec_db }}"
+        login_host: "{{ db_host }}"     
+        login_user: "{{ wordpress_db_user }}"
+        login_password: "{{ wordpress_db_password }}"
+        state: present
 
+    - name: Create devsecops db
+      mysql_db:
+        name: "{{ devsecops_db }}"
+        login_host: "{{ db_host }}"       
+        login_user: "{{ wordpress_db_user }}"
+        login_password: "{{ wordpress_db_password }}"
+        state: present
