@@ -2,6 +2,7 @@
 
 Remplacer les addresses ip du fichier inventory par les vôtres
 Faites la même choses dans les playbooks.
+Remplacer dans secret.yml les identifiants de votre base de données
 
 Et à la fin lancez le fichier install.sh 
 ``./install.sh``
