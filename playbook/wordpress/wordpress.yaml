@@ -78,6 +78,12 @@
     - name: Extract WordPress archive
       unarchive:
         src: /tmp/wordpress.tar.gz
+        dest: "/tmp"
+        remote_src: yes
+
+    - name: Copy WordPress archive
+      copy:
+        src: /tmp/wordpress
         dest: "/var/www/{{ item.domain }}/"
         remote_src: yes
       with_items:
@@ -85,7 +91,6 @@
         - { domain: "{{ wordpress_domains[1] }}" }
         - { domain: "{{ wordpress_domains[2] }}" }
 
-    
     - name: Create virtual host configurations
       template:
         src: 000-default.conf.j2
