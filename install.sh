@@ -10,6 +10,8 @@ echo "Fin configuration réseau"
 echo "Début installations des services"
 ansible-playbook -i inventory.ini playbook/apache/install_apache.yml
 ansible-playbook -i inventory.ini playbook/haproxy/install_haproxy.yml
+ansible-playbook -i inventory.ini playbook/mariadb/install_mariadb.yml
+ansible-playbook -i inventory.ini playbook/nfs/install_nfs.yml
 echo "Fin installations des services"
 
 echo "Installation des wordpress"
