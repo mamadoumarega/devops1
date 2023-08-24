@@ -18,3 +18,4 @@ Et à la fin lancez le fichier install.sh
 Changez le /etc/hosts de votre machine de test comme 
 par exemple ici ``IP_DE_S0 devops.com devsec.com devsecops.com
 ``
+### Ne pas executer le fichier ``demo.sh``
